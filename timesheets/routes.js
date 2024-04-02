@@ -1,15 +1,21 @@
 import admin from "firebase-admin"
 import firebase from 'firebase/compat/app';
-import serviceAccount from '../firebase-admin-service-account.json' assert { type: "json" };
 
 function TimesheetRoutes(app) {
 
+
     // init
+    const { privateKey } = JSON.parse(process.env.FIREBASE_PRIVATE_KEY);
     admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+        credential: admin.credential.cert({
+            "projectId": process.env.FIREBASE_PROJECT_ID,
+            privateKey,
+            "client_email": process.env.FIREBASE_CLIENT_EMAIL
+        })
     });
     let db = admin.firestore();
     let dbUsers = db.collection('timesheets');
+    const serviceAccount = process.env.serviceAccount;
 
     // add timesheet
     const createTimesheet = async (req, res) => {
@@ -23,7 +29,7 @@ function TimesheetRoutes(app) {
             description: req.body.description,
             createdOn: Date.now()
         });
-        
+
         // return id
         res.json(newTimesheetDoc.id);
     }
