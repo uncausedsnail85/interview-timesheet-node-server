@@ -45,7 +45,7 @@ function TimesheetRoutes(app) {
     // find all timesheets
     const findAllTimesheets = async (req, res) => {
         const snapshot = await dbUsers.get();
-        const docs = snapshot.docs.map(doc => doc.id);
+        const docs = snapshot.docs.map(doc => doc.data());
         res.json(docs);
     }
 
