@@ -11,7 +11,7 @@ app.use(
         origin: function (origin, callback) {
             // callback to set origin dynamically. for supporting multiple endpoints
             if (!origin) return callback(null, true);
-
+            // split env var into multiple endpoints and check each
             if (process.env.FRONTEND_URLS.split(" ").indexOf(origin) === -1) {
                 var msg = `This site ${origin} does not have an access. Only specific domains are allowed to access it.`;
                 return callback(new Error(msg), false);
@@ -21,16 +21,5 @@ app.use(
     })
 );
 
-
-
-// TEMP
-var timesheet = {
-    rate: 0,
-    lineItems: [{ name: "lineitem1" }, { name: "lineitem2" }],
-}
-
-app.get('/hello', (req, res) => { res.json(timesheet) })
-
 TimesheetRoutes(app);
-
 app.listen(process.env.PORT || 4000);
