@@ -1,4 +1,5 @@
 import admin from "firebase-admin"
+import firebase from 'firebase/compat/app';
 import serviceAccount from '../firebase-admin-service-account.json' assert { type: "json" };
 
 function TimesheetRoutes(app) {
@@ -17,8 +18,12 @@ function TimesheetRoutes(app) {
             userId: req.body.userId,
             rate: req.body.rate,
             lineItems: req.body.lineItems,
-            id: newTimesheetDoc.id
+            id: newTimesheetDoc.id,
+            name: req.body.name,
+            description: req.body.description,
+            createdOn: Date.now()
         });
+        
         // return id
         res.json(newTimesheetDoc.id);
     }
@@ -36,15 +41,15 @@ function TimesheetRoutes(app) {
     // request body should be a JSON object with 1 field:
     // @timesheetId: firebase id of the timesheet to be updated
     const deleteTimesheet = async (req, res) => {
-        const newTimesheetDoc = dbUsers.doc(req.body.id);
+        const newTimesheetDoc = dbUsers.doc(req.params.timesheetId);
         await newTimesheetDoc.delete();
         // return id
         res.json(newTimesheetDoc.id);
     }
 
-    // find all timesheets
+    // find all timesheets, ordered by ascending creation date
     const findAllTimesheets = async (req, res) => {
-        const snapshot = await dbUsers.get();
+        const snapshot = await dbUsers.orderBy('createdOn').get();
         const docs = snapshot.docs.map(doc => doc.data());
         res.json(docs);
     }
@@ -63,7 +68,7 @@ function TimesheetRoutes(app) {
     // routes
     app.post('/api/timesheets', createTimesheet);
     app.put('/api/timesheets', updateTimesheet);
-    app.delete('/api/timesheets', deleteTimesheet);
+    app.delete('/api/timesheets/:timesheetId', deleteTimesheet);
     app.get('/api/timesheets/:timesheetId', findTimesheetById);
     app.get('/api/timesheets', findAllTimesheets);
 
